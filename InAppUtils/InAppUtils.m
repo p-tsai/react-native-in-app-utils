@@ -200,6 +200,25 @@ RCT_EXPORT_METHOD(receiptData:(RCTResponseSenderBlock)callback)
     }
 }
 
+RCT_EXPORT_METHOD(refreshReceipt:(BOOL)testExpired
+                  testRevoked:(BOOL)testRevoked
+                  callback:(RCTResponseSenderBlock)callback)
+{
+    SKReceiptRefreshRequest *refreshRequest;
+    if (testExpired || testRevoked) {
+        NSDictionary *properties = @{
+                                     SKReceiptPropertyIsExpired:@(testExpired),
+                                     SKReceiptPropertyIsRevoked:@(testRevoked)
+                                     };
+        refreshRequest = [[SKReceiptRefreshRequest alloc] initWithReceiptProperties:properties];
+    } else {
+        refreshRequest = [[SKReceiptRefreshRequest alloc] init];
+    }
+    refreshRequest.delegate = self;
+    _callbacks[RCTKeyForInstance(refreshRequest)] = callback;
+    [refreshRequest start];
+}
+
 // SKProductsRequestDelegate protocol method
 - (void)productsRequest:(SKProductsRequest *)request
      didReceiveResponse:(SKProductsResponse *)response
